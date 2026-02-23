@@ -99,8 +99,15 @@ Route::middleware(['auth', 'role:kasubsi'])->group(function () {
 // ====================================================
 Route::middleware(['auth', 'role:kasi'])->group(function () {
     Route::get('/kasi/dashboard', [KasiDashboardController::class, 'index'])->name('kasi.dashboard');
+    
+    // [BARU] Route untuk membuka halaman Form Pengisian BAPEN
+    Route::get('/kasi/bapen/{id}/form', [KasiDashboardController::class, 'formBapen'])->name('kasi.bapen.form');
+    
     Route::get('/kasi/preview/{id}', [KasiDashboardController::class, 'previewBapen'])->name('kasi.preview');
-    Route::post('/kasi/bapen/{id}', [KasiDashboardController::class, 'storeBapen'])->name('kasi.storeBapen');
+    
+    // [UPDATE] Sesuaikan nama route agar cocok dengan action di form_bapen.blade.php
+    Route::post('/kasi/bapen/{id}/simpan', [KasiDashboardController::class, 'storeBapen'])->name('kasi.bapen.simpan');
+    
     Route::post('/kasi/batal/{id}', [KasiDashboardController::class, 'batalBapen'])->name('kasi.batal');
 });
 
@@ -110,6 +117,10 @@ Route::middleware(['auth', 'role:kasi'])->group(function () {
 // ====================================================
 Route::middleware(['auth', 'role:kakan'])->group(function () { 
     Route::get('/kakan/dashboard', [KakanDashboardController::class, 'index'])->name('kakan.dashboard');
+    
+    // [BARU] Route untuk membuka halaman Form Pengisian Draft SK Kakanim
+    Route::get('/kakan/sk/{id}/form', [KakanDashboardController::class, 'formSk'])->name('kakan.formSk');
+    
     Route::get('/kakan/preview/{id}', [KakanDashboardController::class, 'previewSk'])->name('kakan.preview');
     Route::post('/kakan/sk/{id}', [KakanDashboardController::class, 'storeSk'])->name('kakan.storeSk');
     Route::post('/kakan/batal/{id}', [KakanDashboardController::class, 'batalSk'])->name('kakan.batal');

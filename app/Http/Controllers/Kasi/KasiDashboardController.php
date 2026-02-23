@@ -25,6 +25,20 @@ class KasiDashboardController extends Controller
     }
 
     /**
+     * TAMPILKAN FORM PENGISIAN BAPEN (TAMBAHAN UNTUK LOAD VIEW FORM)
+     */
+    public function formBapen($id)
+    {
+        $bap = Bap::findOrFail($id);
+
+        if ($bap->status != 'proses_bapen') {
+            return redirect()->route('kasi.dashboard')->with('error', 'Status berkas belum siap untuk diproses.');
+        }
+
+        return view('kasi.form_bapen', compact('bap'));
+    }
+
+    /**
      * 1. PREVIEW PDF (Lihat Draft Sebelum Terbit)
      * Hanya menampilkan di browser, tidak menyimpan ke database/storage.
      */
@@ -43,15 +57,46 @@ class KasiDashboardController extends Controller
      * 2. TERBITKAN BAPEN (Final)
      * Generate PDF, Simpan ke Storage, dan Oper ke Kakan.
      */
-    public function storeBapen($id)
+    public function storeBapen(Request $request, $id) // Tambahkan Request $request
     {
         $bap = Bap::findOrFail($id);
+
+        // === LOGIKA SIMPAN POIN-POIN DINAMIS ===
+        $pendapat_kasi = [];
+        $utamas = $request->input('pendapat_utama', []);
+        $subs   = $request->input('pendapat_sub', []);
+
+        foreach ($utamas as $index => $teks_utama) {
+            if (!empty($teks_utama)) {
+                $sub_items = [];
+                
+                // Cek apakah poin ini memiliki anak poin (a,b,c)
+                if (isset($subs[$index]) && is_array($subs[$index])) {
+                    foreach ($subs[$index] as $sub_teks) {
+                        if (!empty($sub_teks)) {
+                            $sub_items[] = $sub_teks;
+                        }
+                    }
+                }
+
+                $pendapat_kasi[] = [
+                    'utama' => $teks_utama,
+                    'sub'   => $sub_items
+                ];
+            }
+        }
+
+        // Simpan data pendapat ke tabel database
+        $bap->update([
+            'pendapat_kasi' => json_encode($pendapat_kasi)
+        ]);
+        // ========================================
 
         // Generate PDF
         $pdf = Pdf::loadView('pdf.cetakan_bapen', ['bap' => $bap])->setPaper('a4', 'portrait');
 
-        // Simpan File ke Storage Public
-        $filename = 'BAPEN_' . $bap->kode_booking . '.pdf';
+        // Simpan File ke Storage Public (Ditambahkan time() agar tidak tertimpa cache file lama jika diedit)
+        $filename = 'BAPEN_' . $bap->kode_booking . '_' . time() . '.pdf';
         Storage::disk('public')->put('berkas/bapen/' . $filename, $pdf->output());
 
         // Update Status -> Kirim ke Kakan
@@ -60,7 +105,7 @@ class KasiDashboardController extends Controller
             'status' => 'review_kakan' 
         ]);
 
-        return redirect()->back()->with('success', 'BAPEN Berhasil diterbitkan! Berkas diteruskan ke Kepala Kantor.');
+        return redirect()->route('kasi.dashboard')->with('success', 'BAPEN Berhasil diterbitkan! Berkas diteruskan ke Kepala Kantor.');
     }
 
     /**
@@ -73,8 +118,15 @@ class KasiDashboardController extends Controller
 
         // Hanya bisa ditarik jika statusnya masih 'review_kakan' (Belum disentuh Kakan)
         if($bap->status == 'review_kakan'){
+            
+            // Hapus file fisik PDF lama agar tidak memenuhi storage
+            if($bap->file_bapen && Storage::disk('public')->exists('berkas/bapen/' . $bap->file_bapen)){
+                Storage::disk('public')->delete('berkas/bapen/' . $bap->file_bapen);
+            }
+
             $bap->update([
-                'status' => 'proses_bapen' // Kembalikan status ke diri sendiri (Kasi)
+                'status' => 'proses_bapen', // Kembalikan status ke diri sendiri (Kasi)
+                'file_bapen' => null
             ]);
             return redirect()->back()->with('success', 'BAPEN ditarik kembali! Berkas kembali ke antrian Anda.');
         } 

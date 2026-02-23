@@ -40,9 +40,51 @@
                         
                         <div class="space-y-6">
 
+                            <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-200 relative">
+                                <div class="absolute top-4 right-4 bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-300">
+                                    <i class="fas fa-magic"></i> Auto-Save Memori Aktif
+                                </div>
+
+                                <label class="block font-bold text-indigo-800 mb-4 border-b border-indigo-200 pb-2">
+                                    <i class="fas fa-file-signature text-indigo-500 mr-2"></i> Data Surat & Petugas Pemeriksa
+                                </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500">Nomor Surat BAP (Opsional)</label>
+                                        <input type="text" name="nomor_surat_bap" id="nomor_surat_bap" placeholder="Ketik jika ada..." class="w-full border-indigo-300 rounded-lg text-sm focus:ring-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500">Keterangan Kenapa BAP (Wajib)</label>
+                                        <input type="text" name="keterangan_bap" id="keterangan_bap" placeholder="Contoh: Hilang Habis Berlaku" required class="w-full border-indigo-300 rounded-lg text-sm focus:ring-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500">Nama Petugas Pemeriksa</label>
+                                        <input type="text" name="nama_petugas" value="{{ Auth::user()->name }}" required class="w-full border-indigo-300 rounded-lg text-sm focus:ring-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500">NIP Petugas Pemeriksa</label>
+                                        <input type="text" name="nip_petugas" value="{{ Auth::user()->nip ?? '' }}" placeholder="Ketik NIP..." required class="w-full border-indigo-300 rounded-lg text-sm focus:ring-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500">Pangkat/Golongan Petugas</label>
+                                        <input type="text" name="pangkat_petugas" id="pangkat_petugas" placeholder="Contoh: Penata Tk. I (III/d)" required class="w-full border-indigo-300 rounded-lg text-sm focus:ring-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500">Jabatan Petugas (Deskripsi)</label>
+                                        <input type="text" name="jabatan_petugas" id="jabatan_petugas" placeholder="Contoh: Pengolah Data Keimigrasian..." required class="w-full border-indigo-300 rounded-lg text-sm focus:ring-indigo-500">
+                                    </div>
+                                    
+                                    <div class="md:col-span-2 mt-2">
+                                        <label class="text-xs font-bold text-gray-500">Alasan Detail Pemeriksaan BAP (Lanjutan Kalimat)</label>
+                                        <textarea name="alasan_pemeriksaan" id="alasan_pemeriksaan" rows="3" required class="w-full border-indigo-300 rounded-lg text-sm focus:ring-indigo-500" placeholder="Contoh: hilangnya Paspor dengan Nomor: A1592307 atas nama ALI ARIFIN..."></textarea>
+                                        <p class="text-xs text-indigo-500 mt-1">*Kalimat ini akan otomatis menyambung setelah kata: <b>"Yang bersangkutan diperiksa dan didengar keterangannya sehubungan dengan..."</b> di cetakan PDF.</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
                                 <label class="block font-bold text-gray-800 mb-4 border-b pb-2">
-                                    <i class="fas fa-id-card text-blue-500 mr-2"></i> Kelengkapan Identitas Pemohon (Untuk PDF)
+                                    <i class="fas fa-id-card text-blue-500 mr-2"></i> Kelengkapan Identitas Pemohon
                                 </label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
@@ -125,14 +167,14 @@
                                 <div id="container-pertanyaan" class="space-y-3">
                                     
                                     <div class="p-4 bg-white rounded-lg border border-yellow-300 shadow-sm relative">
-                                        <p class="font-bold text-sm text-gray-800 mb-2">1. Apakah Saudari dalam keadaan sehat jasmani dan rohani?</p>
-                                        <input type="hidden" name="tanya_tambahan[]" value="Apakah Saudari dalam keadaan sehat jasmani dan rohani?">
+                                        <p class="font-bold text-sm text-gray-800 mb-2">1. Apakah Saudara dalam keadaan sehat jasmani dan rohani?</p>
+                                        <input type="hidden" name="tanya_tambahan[]" value="Apakah Saudara dalam keadaan sehat jasmani dan rohani?">
                                         <textarea name="jawab_tambahan[]" rows="1" class="w-full border-gray-300 rounded-lg text-sm bg-gray-50 focus:ring-yellow-500" required>Ya, saya dalam keadaan sehat jasmani dan rohani.</textarea>
                                     </div>
 
                                     <div class="p-4 bg-white rounded-lg border border-yellow-300 shadow-sm relative">
-                                        <p class="font-bold text-sm text-gray-800 mb-2">2. Apakah Saudari bersedia untuk diambil keterangan dan memberikan keterangan yang sebenarnya dalam klarifikasi ini?</p>
-                                        <input type="hidden" name="tanya_tambahan[]" value="Apakah Saudari bersedia untuk diambil keterangan dan memberikan keterangan yang sebenarnya dalam klarifikasi ini?">
+                                        <p class="font-bold text-sm text-gray-800 mb-2">2. Apakah Saudara bersedia untuk diperiksa dan memberikan keterangan yang sebenarnya dalam pemeriksaan ini?</p>
+                                        <input type="hidden" name="tanya_tambahan[]" value="Apakah Saudara bersedia untuk diperiksa dan memberikan keterangan yang sebenarnya dalam pemeriksaan ini?">
                                         <textarea name="jawab_tambahan[]" rows="1" class="w-full border-gray-300 rounded-lg text-sm bg-gray-50 focus:ring-yellow-500" required>Ya, saya bersedia.</textarea>
                                     </div>
 
@@ -165,6 +207,18 @@
     </div>
 
     <script>
+        // FITUR MEMORI: Mengisi input dengan data terakhir kali submit
+        document.addEventListener("DOMContentLoaded", function() {
+            const fieldsToRemember = ['nomor_surat_bap', 'keterangan_bap', 'pangkat_petugas', 'jabatan_petugas', 'alasan_pemeriksaan'];
+            fieldsToRemember.forEach(field => {
+                const savedValue = localStorage.getItem('memori_bap_' + field);
+                if (savedValue) {
+                    const input = document.getElementById(field);
+                    if(input) input.value = savedValue;
+                }
+            });
+        });
+
         function tambahPertanyaan() {
             const container = document.getElementById('container-pertanyaan');
             
@@ -187,6 +241,15 @@
         }
 
         document.getElementById('form-wawancara').addEventListener('submit', function() {
+            // FITUR MEMORI: Menyimpan nilai inputan saat tombol simpan diklik
+            const fieldsToRemember = ['nomor_surat_bap', 'keterangan_bap', 'pangkat_petugas', 'jabatan_petugas', 'alasan_pemeriksaan'];
+            fieldsToRemember.forEach(field => {
+                const input = document.getElementById(field);
+                if(input && input.value) {
+                    localStorage.setItem('memori_bap_' + field, input.value);
+                }
+            });
+
             var btn = document.getElementById('btn-submit');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';

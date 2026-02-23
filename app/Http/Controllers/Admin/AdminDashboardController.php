@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bap;
-use App\Models\KuotaHarian;
+use App\Models\KuotaHarian; // Import Model KuotaHarian
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB; // Tambahkan DB facade
 
 class AdminDashboardController extends Controller
 {
@@ -18,9 +18,13 @@ class AdminDashboardController extends Controller
      */
     public function index(Request $request)
     {
+        // Ambil keyword pencarian dari input
         $search = $request->input('search');
+
+        // Query data dengan eager loading relasi user
         $query = Bap::with('user');
 
+        // Jika ada pencarian, filter berdasarkan Nama atau Kode Booking
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('nama_pemohon', 'like', "%{$search}%")
@@ -28,6 +32,8 @@ class AdminDashboardController extends Controller
             });
         }
 
+        // Ambil data (paginate) dan urutkan dari yang terbaru
+        // withQueryString() agar pagination tidak reset saat mencari
         $data_bap = $query->orderBy('created_at', 'desc')
                           ->paginate(10)
                           ->withQueryString();
@@ -40,6 +46,8 @@ class AdminDashboardController extends Controller
      */
     public function show($id)
     {
+        // Eager load relasi user dan attachments (jika ada model Attachment)
+        // Sesuaikan 'attachments' dengan nama relasi di model Bap jika berbeda
         $bap = Bap::with(['user', 'attachments'])->findOrFail($id); 
         return view('admin.detail_bap', compact('bap'));
     }
@@ -62,7 +70,7 @@ class AdminDashboardController extends Controller
             $pesan = 'Berkas dikembalikan ke User untuk direvisi.';
         } else {
             $bap->update([
-                'status' => 'verifikasi_ok', 
+                'status' => 'verifikasi_ok', // Ubah status ke verifikasi_ok agar lanjut ke wawancara
                 'catatan_revisi' => null
             ]);
             
@@ -79,42 +87,58 @@ class AdminDashboardController extends Controller
     {
         $bap = Bap::findOrFail($id);
         
+        // Pastikan status sudah verifikasi_ok atau proses_bap sebelum wawancara
         if (!in_array($bap->status, ['verifikasi_ok', 'proses_bap'])) {
              return redirect()->route('admin.dashboard')->with('error', 'Status berkas belum siap untuk wawancara.');
         }
 
+        // Ambil data pertanyaan (jika ada logic khusus pertanyaan, tambahkan di sini)
+        // Contoh sederhana: mengirim data bap saja
         return view('admin.wawancara', compact('bap'));
     }
 
     /**
-     * 5. GENERATE BAP (BERSIH DARI FORM LAMA)
+     * 5. GENERATE BAP (BERSIH DARI FORM LAMA & MENAMBAHKAN DATA PEMERIKSAAN)
      */
     public function generateBap(Request $request, $id)
     {
-        // Validasi tanpa hasil_pemeriksaan dan pendapat_petugas
+        // Validasi input data surat, petugas, identitas pemohon, dan alasan pemeriksaan
         $request->validate([
+            'nomor_surat_bap'   => 'nullable|string',
+            'keterangan_bap'    => 'required|string',
+            'nama_petugas'      => 'required|string',
+            'nip_petugas'       => 'required|string',
+            'pangkat_petugas'   => 'required|string',
+            'jabatan_petugas'   => 'required|string',
+            'alasan_pemeriksaan'=> 'required|string', // <-- Tambahan validasi alasan pemeriksaan
+
             'tempat_lahir'      => 'required|string',
             'tgl_lahir'         => 'required|date',
             'agama'             => 'required|string',
             'pendidikan'        => 'required|string',
             'pekerjaan'         => 'required|string',
             'alamat_lengkap'    => 'required|string',
+            
             'nik_ktp'           => 'required|numeric',
             'tgl_keluar_ktp'    => 'required|date',
             'no_kk'             => 'required|numeric',
             'tgl_keluar_kk'     => 'required|date',
             'no_akta'           => 'required|string',
             'tgl_keluar_akta'   => 'required|date',
+            
             'tanya_tambahan.*'  => 'nullable|string',
             'jawab_tambahan.*'  => 'nullable|string',
         ]);
 
+        // Gunakan Transaksi Database untuk integritas data
         DB::transaction(function () use ($request, $id) {
             $bap = Bap::findOrFail($id);
 
+            // B. Proses Data Tambahan menjadi JSON
             $data_tambahan = [];
             if ($request->has('tanya_tambahan')) {
                 foreach ($request->tanya_tambahan as $key => $tanya) {
+                    // Hanya simpan jika pertanyaan tidak kosong
                     if (!empty($tanya)) {
                         $data_tambahan[] = [
                             'tanya' => $tanya,
@@ -124,7 +148,16 @@ class AdminDashboardController extends Controller
                 }
             }
 
+            // C. Update Database Data BAP
             $bap->update([
+                'nomor_surat_bap'   => $request->nomor_surat_bap,
+                'keterangan_bap'    => $request->keterangan_bap,
+                'nama_petugas'      => $request->nama_petugas,
+                'nip_petugas'       => $request->nip_petugas,
+                'pangkat_petugas'   => $request->pangkat_petugas,
+                'jabatan_petugas'   => $request->jabatan_petugas,
+                'alasan_pemeriksaan'=> $request->alasan_pemeriksaan, // <-- Simpan alasan pemeriksaan
+
                 'tempat_lahir'      => $request->tempat_lahir,
                 'tgl_lahir'         => $request->tgl_lahir,
                 'pendidikan'        => $request->pendidikan,
@@ -139,25 +172,28 @@ class AdminDashboardController extends Controller
                 'no_akta'           => $request->no_akta,
                 'tgl_keluar_akta'   => $request->tgl_keluar_akta,
 
-                'nama_petugas'      => Auth::user()->name,
-                'nip_petugas'       => Auth::user()->nip ?? '199504252017121001',
+                // NIP & Nama Kasubsi di-hardcode sementara sesuai template
                 'nama_kasubsi'      => 'DEDI MUHAEMIN', 
                 'nip_kasubsi'       => '199802202022011001',
                 
                 'pertanyaan_tambahan' => count($data_tambahan) > 0 ? json_encode($data_tambahan) : null,
             ]);
 
+            // D. Generate PDF BAP (Pemeriksaan)
             $pdf = Pdf::loadView('pdf.cetakan_bap', ['bap' => $bap])->setPaper('a4', 'portrait');
-            $filename = 'BAK_' . $bap->kode_booking . '_' . time() . '.pdf';
+            
+            // Nama file diganti dari BAK ke BAP
+            $filename = 'BAP_' . $bap->kode_booking . '_' . time() . '.pdf';
             Storage::disk('public')->put('berkas/bap/' . $filename, $pdf->output());
 
+            // E. Update File & Status ke Review Kasubsi
             $bap->update([
                 'file_bap' => $filename,
                 'status' => 'review_kasubsi'
             ]);
         });
 
-        return redirect()->route('admin.dashboard')->with('success', 'BAP Selesai! Berita Acara Klarifikasi berhasil dicetak dan diteruskan ke Kasubsi.');
+        return redirect()->route('admin.dashboard')->with('success', 'BAP Selesai! Berita Acara Pemeriksaan berhasil dicetak dan diteruskan ke Kasubsi.');
     }
 
     /**

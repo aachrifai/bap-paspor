@@ -70,7 +70,7 @@
                         <h3 class="text-lg font-bold text-gray-800">
                             <i class="fas fa-gavel mr-2"></i> Penerbitan BAPEN (Kasi)
                         </h3>
-                        <span class="text-xs text-gray-400">Menampilkan 10 data terbaru</span>
+                        <span class="text-xs text-gray-400">Menampilkan data terbaru</span>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -132,18 +132,9 @@
 
                                     <td class="px-6 py-4 text-center">
                                         @if($item->status == 'proses_bapen')
-                                            <div class="flex flex-col gap-2">
-                                                <a href="{{ route('kasi.preview', $item->id) }}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-1 border border-yellow-400 text-yellow-700 bg-yellow-50 rounded-md font-bold text-xs hover:bg-yellow-100 transition">
-                                                    <i class="fas fa-eye mr-2"></i> Draft
-                                                </a>
-                                                
-                                                <form action="{{ route('kasi.storeBapen', $item->id) }}" method="POST" class="form-approve">
-                                                    @csrf
-                                                    <button type="button" onclick="konfirmasiTerbit(this)" style="background-color: #16a34a; color: white;" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md font-bold text-xs uppercase tracking-widest hover:opacity-90 transition shadow-md">
-                                                        <i class="fas fa-paper-plane mr-2"></i> KIRIM KE KAKAN
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            <a href="{{ route('kasi.bapen.form', $item->id) }}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md font-bold text-xs uppercase tracking-widest text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-md">
+                                                <i class="fas fa-edit mr-2"></i> ISI BAPEN
+                                            </a>
 
                                         @elseif($item->status == 'review_kakan')
                                             <div class="flex flex-col gap-2 items-center">
@@ -193,29 +184,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // 1. Alert untuk Terbitkan
-        function konfirmasiTerbit(button) {
-            Swal.fire({
-                title: 'Kirim ke Kakanim?',
-                text: "Pastikan BAPEN sudah benar. Berkas akan diteruskan ke Kepala Kantor.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#16a34a', // Hijau
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Kirim!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    button.closest('form').submit();
-                }
-            })
-        }
-
-        // 2. Alert untuk Batal/Tarik
+        // Alert untuk Batal/Tarik
         function konfirmasiBatal(button) {
             Swal.fire({
                 title: 'Tarik Kembali?',
-                text: "Berkas akan ditarik dari meja Kepala Kantor kembali ke antrian Anda.",
+                text: "Berkas akan ditarik dari meja Kepala Kantor kembali ke antrian Anda. Anda bisa merubah BAPEN lagi setelahnya.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33', // Merah

@@ -59,7 +59,7 @@
                         <h3 class="text-lg font-bold text-gray-800">
                             <i class="fas fa-briefcase mr-2"></i> Ruang Kerja Kepala Kantor
                         </h3>
-                        <span class="text-xs text-gray-400">Menampilkan 10 data terbaru</span>
+                        <span class="text-xs text-gray-400">Menampilkan data terbaru</span>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -120,15 +120,12 @@
                                         @if($item->status == 'review_kakan')
                                             <div class="flex flex-col gap-2">
                                                 <a href="{{ route('kakan.preview', $item->id) }}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-1 border border-yellow-400 text-yellow-700 bg-yellow-50 rounded-md font-bold text-xs hover:bg-yellow-100 transition">
-                                                    <i class="fas fa-eye mr-2"></i> Draft SK
+                                                    <i class="fas fa-eye mr-2"></i> Preview Template
                                                 </a>
 
-                                                <form action="{{ route('kakan.storeSk', $item->id) }}" method="POST">
-                                                    @csrf
-                                                    <button type="button" onclick="konfirmasiSk(this)" class="w-full inline-flex justify-center items-center px-4 py-2 bg-gray-900 text-white border border-transparent rounded-md font-bold text-xs uppercase tracking-widest hover:bg-black transition shadow-md">
-                                                        <i class="fas fa-pen-fancy mr-2"></i> TANDA TANGAN
-                                                    </button>
-                                                </form>
+                                                <a href="{{ route('kakan.formSk', $item->id) }}" class="w-full inline-flex justify-center items-center px-4 py-2 bg-gray-900 text-white border border-transparent rounded-md font-bold text-xs uppercase tracking-widest hover:bg-black transition shadow-md">
+                                                    <i class="fas fa-pen-fancy mr-2"></i> PROSES SK
+                                                </a>
                                             </div>
 
                                         @elseif($item->status == 'sk_terbit' && $item->file_sk)
@@ -168,27 +165,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // 1. Alert Tanda Tangan
-        function konfirmasiSk(button) {
-            Swal.fire({
-                title: 'Terbitkan SK?',
-                text: "Pastikan Anda sudah melihat PREVIEW DRAFT. Dokumen akan ditandatangani dan proses selesai.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#111827', // Hitam
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Tanda Tangan',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) button.closest('form').submit();
-            })
-        }
-
-        // 2. Alert Batal SK
+        // Alert Batal SK
         function konfirmasiBatal(button) {
             Swal.fire({
                 title: 'Tarik Kembali SK?',
-                text: "Surat Keputusan akan DIHAPUS dan status dikembalikan ke 'Perlu Tanda Tangan'.",
+                text: "Surat Keputusan akan DIHAPUS dan status dikembalikan ke 'Perlu Tanda Tangan'. Anda bisa memperbaiki draftnya kembali.",
                 icon: 'error', 
                 showCancelButton: true,
                 confirmButtonColor: '#d33', // Merah

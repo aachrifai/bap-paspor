@@ -5,25 +5,39 @@
     <title>Berita Acara Pendapat</title>
     <style>
         body { font-family: "Times New Roman", Times, serif; font-size: 11.5pt; line-height: 1.5; margin: 0 1cm; }
-        .kop-surat { text-align: center; border-bottom: 3px solid black; margin-bottom: 15px; padding-bottom: 5px; }
-        .kop-surat h3, .kop-surat h4, .kop-surat p { margin: 0; }
-        .kop-surat h3 { font-size: 14pt; }
-        .kop-surat h4 { font-size: 12pt; }
-        .kop-surat p { font-size: 10pt; }
-        .title { text-align: center; font-weight: bold; margin-bottom: 20px; line-height: 1.5; }
+
+        /* Pengaturan Layout Header dengan Logo di kiri */
+        .kop-header { position: relative; border-bottom: 3px solid black; margin-bottom: 15px; padding-bottom: 5px; min-height: 100px; }
+        .logo-imigrasi { position: absolute; left: 0; top: 0; width: 85px; height: auto; }
+        .teks-kop { text-align: center; margin-left: 90px; }
+
+        .teks-kop h3, .teks-kop h4, .teks-kop p { margin: 0; }
+        .teks-kop h3 { font-size: 14pt; }
+        .teks-kop h4 { font-size: 12pt; }
+        .teks-kop p { font-size: 10pt; }
+
+        .title { text-align: center; font-weight: bold; margin-bottom: 20px; }
+        .title span.judul { text-decoration: underline; font-size: 12pt; }
+
         .content { text-align: justify; }
-        table.biodata { width: 100%; margin-left: 15px; margin-bottom: 15px; }
+        table.biodata { width: 100%; margin-left: 15px; margin-bottom: 15px; border-collapse: collapse; }
         table.biodata td { vertical-align: top; padding: 2px 0; }
-        .ttd-box { width: 100%; margin-top: 30px; text-align: center; }
-        .ttd-box td { width: 50%; vertical-align: bottom; }
+
+        /* Pengaturan List agar rapi untuk poin 1,2,3 dan a,b,c */
         ol { margin-top: 5px; padding-left: 20px; }
         ol li { margin-bottom: 5px; text-align: justify; }
+        ol[type="a"] { margin-top: 5px; margin-bottom: 10px; }
+        ol[type="a"] li { margin-bottom: 3px; }
+
+        /* Tanda Tangan Kasi (Kanan Atas-Bawah) */
+        table.ttd-kasi { width: 100%; margin-top: 30px; border-collapse: collapse; }
+        table.ttd-kasi td.kosong { width: 55%; }
+        table.ttd-kasi td.isi { width: 45%; text-align: left; vertical-align: top; }
     </style>
 </head>
 <body>
 
     @php
-        // Helper Terbilang Tanggal & Bulan untuk hari ini (Saat Kasi Cetak BAPEN)
         $formatter = new NumberFormatter('id', NumberFormatter::SPELLOUT);
         $hari = \Carbon\Carbon::now()->translatedFormat('l');
         $tgl_angka = \Carbon\Carbon::now()->format('d');
@@ -32,30 +46,32 @@
         $tahun_angka = \Carbon\Carbon::now()->format('Y');
         $tahun_huruf = ucwords($formatter->format($tahun_angka));
 
-        // Format Tanggal BAP sebelumnya
+        // Mengambil tanggal BAP sebelumnya untuk direferensikan
         $tgl_bap = \Carbon\Carbon::parse($bap->updated_at)->format('d-m-Y');
     @endphp
 
-    <div class="kop-surat">
-        <h3>KEMENTERIAN IMIGRASI DAN PEMASYARAKATAN REPUBLIK INDONESIA</h3>
-        <h4>DIREKTORAT JENDERAL IMIGRASI</h4>
-        <h4>KANTOR WILAYAH JAWA TENGAH</h4>
-        <h3 style="font-weight: bold;">KANTOR IMIGRASI KELAS II NON TPI WONOSOBO</h3>
-        <p>Jalan Raya Banyumas Km 5,5 Selomerto Wonosobo 56361<br>
-        Telepon: (0286) 321628, Faksimili: (0286) 325587<br>
-        Laman: https://kanimwonosobo.kemenkumham.go.id Pos-el: kanim.wonosobo@kemenkumham.go.id</p>
+    <div class="kop-header">
+        <img src="{{ public_path('images/logo-imigrasi.png') }}" class="logo-imigrasi">
+        <div class="teks-kop">
+            <h3>KEMENTERIAN IMIGRASI DAN PEMASYARAKATAN REPUBLIK INDONESIA</h3>
+            <h4>DIREKTORAT JENDERAL IMIGRASI</h4>
+            <h4>KANTOR WILAYAH JAWA TENGAH</h4>
+            <h3 style="font-weight: bold;">KANTOR IMIGRASI KELAS II NON TPI WONOSOBO</h3>
+            <p>Jalan Raya Banyumas Km 5,5 Selomerto Wonosobo 56361<br>
+            Telepon: (0286) 321628, Faksimili: (0286) 325587<br>
+            Laman: wonosobo.imigrasi.go.id Pos-el: kanim.wonosobo@imigrasi.go.id</p>
+        </div>
     </div>
 
     <div class="title">
-        <span style="border-bottom: 1px solid black;">BERITA ACARA PENDAPAT</span><br>
-        <span style="font-weight: normal; font-size: 11pt;">Nomor: WIM.13.IMI.6-GR.03.01-___________________</span>
+        <span class="judul">BERITA ACARA PENDAPAT</span>
     </div>
 
     <div class="content">
         <p>Pada hari ini <strong>{{ $hari }}</strong> tanggal <strong>{{ $tgl_huruf }}</strong> bulan <strong>{{ $bulan }}</strong> tahun <strong>{{ $tahun_huruf }}</strong>, saya:</p>
-        
+
         <p style="text-align: center; font-weight: bold; margin: 5px 0;">SUWANDONO</p>
-        <p>Pangkat/Golongan Penata Tk. I (III/d), NIP. 198505262009121009 Kepala Seksi Intelijen dan Penindakan Keimigrasian pada Kantor Imigrasi Kelas II Non TPI Wonosobo, setelah melihat, membaca dan meneliti hasil klarifikasi yang tertuang di dalam Berita Acara Klarifikasi tanggal {{ $tgl_bap }} yang dilakukan terhadap seorang Warga Negara Indonesia atas:</p>
+        <p>Pangkat/Golongan Penata Tk. I (III/d), NIP. 198505262009121009 Kepala Seksi Intelijen dan Penindakan Keimigrasian pada Kantor Imigrasi Kelas II Non TPI Wonosobo, setelah melihat, membaca dan meneliti hasil pemeriksaan yang tertuang di dalam Berita Acara Pemeriksaan tanggal {{ $tgl_bap }} yang dilakukan terhadap seorang Warga Negara Indonesia atas:</p>
 
         <table class="biodata">
             <tr>
@@ -63,7 +79,7 @@
                 <td>: <strong>{{ strtoupper($bap->nama_pemohon) }}</strong></td>
             </tr>
             <tr>
-                <td>Tempat/Tgl Lahir</td>
+                <td>Tempat/tgl Lahir</td>
                 <td>: {{ $bap->tempat_lahir }}, {{ \Carbon\Carbon::parse($bap->tgl_lahir)->format('d-m-Y') }}</td>
             </tr>
             <tr>
@@ -78,29 +94,46 @@
 
         <p style="margin-bottom: 0;">Kami berpendapat:</p>
         <ol>
-            <li>Bahwa berdasarkan hasil pemeriksaan, {{ lcfirst($bap->hasil_pemeriksaan) }}</li>
-            <li>Bahwa menurut pendapat petugas, {{ lcfirst($bap->pendapat_petugas) }}</li>
-            
-            <li>Bahwa untuk menguatkan permohonan penggantian Paspor, yang bersangkutan telah melampirkan dokumen pendukung berupa:
-                <ol type="a">
-                    <li>KTP Elektronik NIK {{ $bap->nik_ktp }} yang dikeluarkan Kantor Disdukcapil tanggal {{ \Carbon\Carbon::parse($bap->tgl_keluar_ktp)->format('d-m-Y') }};</li>
-                    <li>Kartu Keluarga Nomor {{ $bap->no_kk }} yang dikeluarkan Kantor Disdukcapil tanggal {{ \Carbon\Carbon::parse($bap->tgl_keluar_kk)->format('d-m-Y') }};</li>
-                    <li>Kutipan Akta/Buku Nikah/Ijazah Nomor: {{ $bap->no_akta }} yang dikeluarkan Disdukcapil tanggal {{ \Carbon\Carbon::parse($bap->tgl_keluar_akta)->format('d-m-Y') }}, dimana data yang tertera pada semua dokumen tersebut sama.</li>
-                </ol>
-            </li>
+            @php
+                // Logika membaca JSON hasil inputan form Kasi
+                $pendapat = json_decode($bap->pendapat_kasi ?? '[]', true);
+            @endphp
+
+            @if(!empty($pendapat))
+                @foreach($pendapat as $item)
+                    <li>
+                        {{ $item['utama'] }}
+                        
+                        @if(isset($item['sub']) && is_array($item['sub']) && count($item['sub']) > 0)
+                            <ol type="a">
+                                @foreach($item['sub'] as $sub)
+                                    @if(!empty($sub))
+                                        <li>{{ $sub }}</li>
+                                    @endif
+                                @endforeach
+                            </ol>
+                        @endif
+                    </li>
+                @endforeach
+            @else
+                <li>Bahwa yang bersangkutan telah dilakukan pemeriksaan sesuai Berita Acara Pemeriksaan.</li>
+            @endif
         </ol>
 
-        <p>Berdasarkan hal tersebut di atas dan mengingat Peraturan Menteri Hukum dan HAM RI Nomor 18 Tahun 2022 tentang Perubahan Atas Peraturan Menteri Hukum dan HAM RI Nomor 8 Tahun 2014 tentang Paspor Biasa dan Surat Perjalanan Laksana Paspor serta Surat Dinas Direktur Jenderal Imigrasi tanggal 21 Juni 2023 tentang Penerbitan Paspor RI ke Negara Tujuan PMI, maka kami berpendapat agar permohonan Paspor yang bersangkutan untuk dapat diberikan Paspor Baru. Namun demikian keputusan selanjutnya kami serahkan kepada Kepala Seksi Dokumen Perjalanan dan Izin Tinggal Keimigrasian.</p>
+        <p>Berdasarkan hal tersebut di atas dan merujuk peraturan yang berlaku (Peraturan Menteri Hukum dan HAM RI Nomor 18 Tahun 2022 tentang Perubahan Atas Peraturan Menteri Hukum dan HAM RI Nomor 8 Tahun 2014 tentang Paspor Biasa dan Surat Perjalanan Laksana Paspor) bahwa yang bersangkutan dapat diberikan penggantian Paspor yang telah hilang. Namun demikian keputusan selanjutnya kami serahkan kepada Kepala Kantor Imigrasi Kelas II Non TPI Wonosobo;</p>
 
-        <p>Demikian Berita Acara Pendapat ini dibuat dengan sebenarnya atas kekuatan sumpah jabatan. Kemudian ditutup dan ditandatangani di Kantor Imigrasi Kelas II Non TPI Wonosobo pada hari, tanggal, bulan dan tahun tersebut di atas.</p>
+        <p style="margin-top: 20px;">Demikian Berita Acara Pendapat ini dibuat dengan sebenarnya atas kekuatan sumpah jabatan.</p>
+        <p style="margin-top: 0;">Kemudian ditutup dan ditandatangani di Kantor Imigrasi Kelas II Non TPI Wonosobo pada hari, tanggal, bulan dan tahun tersebut di atas.</p>
 
-        <table class="ttd-box">
+        <table class="ttd-kasi">
             <tr>
-                <td></td>
-                <td>
-                    Kepala Seksi Intelijen dan Penindakan<br>Keimigrasian,<br><br><br><br><br>
-                    <strong>SUWANDONO</strong><br>
-                    NIP. 198505262009121009
+                <td class="kosong"></td> <td class="isi">
+                    <p style="margin: 0;">Kepala Seksi Intelijen dan Penindakan<br>Keimigrasian,</p>
+                    <div style="height: 70px;"></div>
+                    <p style="margin: 0; line-height: 1.2;">
+                        <strong style="text-decoration: underline;">SUWANDONO</strong><br>
+                        NIP. 198505262009121009
+                    </p>
                 </td>
             </tr>
         </table>
